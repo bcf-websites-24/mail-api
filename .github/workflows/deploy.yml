@@ -1,0 +1,55 @@
+name: Build, push, and deploy
+
+# Controls when the action will run.
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Create .env file
+        run: |
+          touch .env
+          echo MAIL_API_KEY=${{ secrets.MAIL_API_KEY }} >> .env
+          echo DB_CONN_STRING=\'${{ secrets.DB_CONN_STRING }}\' >> .env
+          cat .env
+
+      - name: Create keys.json file
+        run: |
+          touch keys.json
+          echo ${{ secrets.KEYS_JSON }} >> keys.json
+          cat keys.json
+
+      # Install doctl.
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      # Build a Docker image and tag the image with the $GITHUB_SHA.
+      - name: Build container image
+        run: docker build -t registry.digitalocean.com/csefest2024-registry/csefest2024-mail-api:$(echo $GITHUB_SHA | head -c7) .
+
+      - name: Log in to DigitalOcean Container Registry with short-lived credentials
+        run: doctl registry login --expiry-seconds 1200
+
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push registry.digitalocean.com/csefest2024-registry/csefest2024-mail-api:$(echo $GITHUB_SHA | head -c7)
+
+      # Deploy to DigitalOCcean Kubernetes.
+      - name: Update deployment file
+        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|registry.digitalocean.com/csefest2024-registry/csefest2024-mail-api:'${TAG}'|' k8s/mail-api-deployment.yaml
+
+      - name: Save DigitalOcean kubeconfig with short-lived credentials
+        run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ vars.CLUSTER_NAME }}
+
+      - name: Deploy to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/k8s.yaml

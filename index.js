@@ -4,7 +4,9 @@ const express = require('express');
 const ejs = require('ejs');
 const path = require('path');
 
-const keys = JSON.parse(fs.readFileSync("keys.json"));
+const json = fs.readFileSync(path.join(__dirname, 'keys.json'));
+
+const keys = JSON.parse(json);
 
 let id = 0;
 
@@ -15,9 +17,15 @@ const sendEmail = async (email, name, otp) => {
     const domain = keys[id]["domain"];
 
     const client = new EmailClient(connectionString);
-    const html = await ejs.renderFile(path.join(__dirname, 'template.ejs'), { name, otp });
+    let html = '';
 
-    const message = {
+    try {
+        html = await ejs.renderFile(path.join(__dirname, 'template.ejs'), { name, otp });
+    } catch (error) {
+        throw new Error("Failed to render email template");
+    }
+
+    message = {
         senderAddress: `DoNotReply@${domain}.buetcsefest2024.com`,
         content: {
             subject: "Email verification for BUET CSE Fest 2024 Picture Puzzle",
@@ -33,12 +41,13 @@ const sendEmail = async (email, name, otp) => {
         },
     };
 
-    const poller = await client.beginSend(message, { apiKey }); // Pass the apiKey to the beginSend method
+    const poller = await client.beginSend(message);
     const response = await poller.pollUntilDone();
 
     if (response.status === "Succeeded") {
         return response;
     } else {
+        print(response);
         throw new Error("Failed to send email: " + response.error);
     }
 }

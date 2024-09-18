@@ -1,7 +1,7 @@
 import os
 
 
-for i in range(0, 11):
+for i in range(0, 15):
     os.system(
         f"doctl compute domain records create buetcsefest2024.com --record-type TXT --record-name mail{i} --record-data 'v=spf1 include:spf.protection.outlook.com -all' --record-ttl 3600"
     )

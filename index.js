@@ -29,7 +29,7 @@ const sendEmail = async (email, name, otp) => {
         senderAddress: `DoNotReply@${domain}.buetcsefest2024.com`,
         content: {
             subject: "Email verification for BUET CSE Fest 2024 Picture Puzzle",
-            plainText: html,
+            html: html,
         },
         recipients: {
             to: [

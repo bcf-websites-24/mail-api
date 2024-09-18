@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Sending Status</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-900">
+
+    <div class="container mx-auto p-8">
+        <h1 class="text-3xl font-bold mb-6 text-center">Email Sending Status</h1>
+
+        <!-- Last 1 Minute Section -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Last 1 Minute</h2>
+            <div class="flex justify-between bg-white p-4 rounded-md shadow-sm border">
+                <div>
+                    <p class="font-medium text-gray-700">Total Emails: <%= stats.lastMinute.total %>
+                    </p>
+                    <p class="text-green-600">✅ Successful: <%= stats.lastMinute.success %>
+                    </p>
+                    <p class="text-red-600">❌ Failed: <%= stats.lastMinute.failed %>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Errors List for Last 1 Minute as a Table -->
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-red-500">Errors (Last 1 Minute)</h3>
+                <% if (stats.lastMinute.errors.length> 0) { %>
+                    <div class="overflow-x-auto">
+                        <table class="table-auto w-full bg-white border border-gray-200 shadow-sm rounded-md">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-700">
+                                    <th class="p-2 border">Sender</th>
+                                    <th class="p-2 border">Time</th>
+                                    <th class="p-2 border">Recipient</th>
+                                    <th class="p-2 border">Error Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% stats.lastMinute.errors.forEach(function(error) { %>
+                                    <tr class="text-gray-700">
+                                        <td class="p-2 border">
+                                            <%= error.sender %>
+                                        </td>
+                                        <td class="p-2 border">
+                                            <%= error.timestamp %>
+                                        </td>
+                                        <td class="p-2 border">
+                                            <%= error.recipient %>
+                                        </td>
+                                        <td class="p-2 border">
+                                            <%= error.errorMessage %>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% } else { %>
+                        <p class="mt-2 text-green-600">No errors in the last minute.</p>
+                        <% } %>
+            </div>
+        </div>
+
+        <!-- Last 1 Hour Section -->
+        <div>
+            <h2 class="text-xl font-semibold mb-4">Last 1 Hour</h2>
+            <div class="flex justify-between bg-white p-4 rounded-md shadow-sm border">
+                <div>
+                    <p class="font-medium text-gray-700">Total Emails: <%= stats.lastHour.total %>
+                    </p>
+                    <p class="text-green-600">✅ Successful: <%= stats.lastHour.success %>
+                    </p>
+                    <p class="text-red-600">❌ Failed: <%= stats.lastHour.failed %>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Errors List for Last 1 Hour as a Table -->
+            <div class="mt-4">
+                <h3 class="text-lg font-semibold text-red-500">Errors (Last 1 Hour)</h3>
+                <% if (stats.lastHour.errors.length> 0) { %>
+                    <div class="overflow-x-auto">
+                        <table class="table-auto w-full bg-white border border-gray-200 shadow-sm rounded-md">
+                            <thead>
+                                <tr class="bg-gray-100 text-gray-700">
+                                    <th class="p-2 border">Sender</th>
+                                    <th class="p-2 border">Time</th>
+                                    <th class="p-2 border">Recipient</th>
+                                    <th class="p-2 border">Error Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% stats.lastHour.errors.forEach(function(error) { %>
+                                    <tr class="text-gray-700">
+                                        <td class="p-2 border">
+                                            <%= error.sender %>
+                                        </td>
+                                        <td class="p-2 border">
+                                            <%= error.timestamp %>
+                                        </td>
+                                        <td class="p-2 border">
+                                            <%= error.recipient %>
+                                        </td>
+                                        <td class="p-2 border">
+                                            <%= error.errorMessage %>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% } else { %>
+                        <p class="mt-2 text-green-600">No errors in the last hour.</p>
+                        <% } %>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

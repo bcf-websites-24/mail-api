@@ -40,6 +40,20 @@ app.get('/status', authenticate, async (req, res) => {
     const oneMinuteAgo = new Date(now - 60 * 1000);
     const oneHourAgo = new Date(now - 60 * 60 * 1000);
 
+    const timezone = req.query.timezone || 'Asia/Dhaka';
+
+    const formatTimeToZone = (timestamp) => {
+        return new Intl.DateTimeFormat('en-US', {
+            timeZone: timezone,
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        }).format(timestamp);
+    };
+
     const getStats = async (timeFrame) => {
         const successfulEmails = await Email.count({
             where: { status: 'success', timestamp: { [Op.between]: [timeFrame, now] } }
@@ -60,7 +74,7 @@ app.get('/status', authenticate, async (req, res) => {
             total: totalEmails,
             errors: errors.map(e => ({
                 sender: e.sender,
-                timestamp: e.timestamp.toLocaleString(), // Format timestamp to readable string
+                timestamp: formatTimeToZone(e.timestamp), // Convert timestamp to the correct timezone
                 recipient: e.recipient,
                 errorMessage: e.error
             }))

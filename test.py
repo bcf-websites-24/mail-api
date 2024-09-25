@@ -6,7 +6,7 @@ import os
 
 dotenv.load_dotenv()
 
-url = "http://localhost:3000/otp"
+url = "https://api.mail.buetcsefest2024.com/otp"
 headers = {
     "Authorization": f"Bearer {os.getenv('MAIL_API_KEY')}",
     "Content-Type": "application/json",
@@ -17,8 +17,8 @@ payload = {"name": "Ashrafur Rahman", "email": "ashrafurkhan37@gmail.com"}
 success_count = 0
 failure_count = 0
 
-n = 120
-workers = 3
+n = 30
+workers = 5
 
 t = n // workers
 

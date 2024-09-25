@@ -9,23 +9,37 @@ const { selectDomain } = require('./utils/domainSelector');
 const { authenticate } = require('./middlewares/authenticate');
 const { errorHandler } = require('./middlewares/errorHandler');
 const { sendEmail } = require('./utils/email');
+const { authenticator } = require('otplib');
+const crypto = require('crypto');
 
 const app = express();
 app.use(express.json());
 
+const generateOTP = (length = 6) => {
+    const otp = crypto.randomInt(0, Math.pow(10, length)).toString().padStart(length, '0');
+    return otp;
+};
+
 // Route to send OTP email
 app.post('/otp', authenticate, async (req, res, next) => {
-    const { name, email } = req.body;
+    const { name, email, pwd_reset } = req.body;
+
+    let reset = false;
 
     if (!name || !email || !email.includes('@')) {
         return res.status(400).json({ message: 'Invalid name or email' });
     }
 
-    const otp = Math.floor(1000 + Math.random() * 9000);
+    if (pwd_reset) {
+        reset = true;
+    }
+
+
+    const otp = generateOTP(6);
     const domainDetails = selectDomain();
 
     try {
-        const result = await sendEmail(domainDetails, email, name, otp);
+        const result = await sendEmail(domainDetails, email, name, otp, reset);
         await Email.create({ sender: domainDetails.sender, recipient: email, name, otp, status: 'success' });
         res.status(200).json({ otp: otp, message: 'Email sent successfully!', result });
     } catch (error) {

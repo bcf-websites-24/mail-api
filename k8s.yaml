@@ -52,6 +52,8 @@ metadata:
   namespace: website
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-cluster-issuer
+    nginx.ingress.kubernetes.io/limit-rpm: "5"
+    nginx.ingress.kubernetes.io/limit-burst-multiplier: "2"
 spec:
   tls:
     - hosts:
@@ -61,7 +63,32 @@ spec:
     - host: api.mail.buetcsefest2024.com
       http:
         paths:
-          - path: /
+          - path: /otp
+            pathType: Prefix
+            backend:
+              service:
+                name: mail-api
+                port:
+                  number: 80
+  ingressClassName: nginx
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-mail-api-status
+  namespace: website
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cluster-issuer
+spec:
+  tls:
+    - hosts:
+        - api.mail.buetcsefest2024.com
+      secretName: letsencrypt-nginx-mail-api
+  rules:
+    - host: api.mail.buetcsefest2024.com
+      http:
+        paths:
+          - path: /status
             pathType: Prefix
             backend:
               service:

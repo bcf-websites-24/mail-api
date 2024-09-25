@@ -12,6 +12,11 @@ const sendEmail = async (domainDetails, email, name, otp, reset) => {
         template = 'views/reset.ejs';
     }
 
+    let subject = "Email verification for BUET CSE Fest 2024 Picture Puzzle";
+    if (reset) {
+        subject = "Password reset for BUET CSE Fest 2024 Picture Puzzle";
+    }
+
     try {
         html = await ejs.renderFile(template, { name, otp });
     } catch (error) {
@@ -21,7 +26,7 @@ const sendEmail = async (domainDetails, email, name, otp, reset) => {
     const message = {
         senderAddress: sender,
         content: {
-            subject: "Email verification for BUET CSE Fest 2024 Picture Puzzle",
+            subject: subject,
             html: html,
         },
         recipients: {
